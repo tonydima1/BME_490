@@ -1,0 +1,132 @@
+clc
+clear
+hipx = [hip x-values 209x1 double];
+hipy = [hip y-values 209x1 double];
+kneex = [knee x-values 209x1 double]
+kneey = [knee y-values 209x1 double]
+anklex = [ankle x-values 209x1 double]
+ankley = [ankle y-values 209x1 double]
+toex = [toe x-values 209x1 double]
+toey = [toe y-values 209x1 double]
+t = [time values 209x1 double]
+%Leg-Bone animation
+n = 1;
+figure(1);
+axis([0 1.5 0 1])
+title('Tracking Animation')
+xlabel('x(m)');
+ylabel('y(m)');
+while(n < 209)
+   line([hipx(n), kneex(n)], [hipy(n), kneey(n)])
+   line([kneex(n), anklex(n)], [kneey(n), ankley(n)],'Color','r')
+   line([anklex(n), toex(n)], [ankley(n), toey(n)],'Color','g')
+   hold on
+   %Incrementing by the Time Value
+   pause(0.01666666666666666)
+   n = n + 1;
+end
+
+%x-t Graphs
+figure(2);
+tiledlayout(2,2)
+nexttile
+plot(t, hipx)
+title('Hip X Values')
+ylabel('x(m)')
+xlabel('t(s)')
+nexttile
+plot(t, kneex)
+title('Knee X Values')
+ylabel('x(m)')
+xlabel('t(s)')
+nexttile
+plot(t, anklex)
+title('Ankle X Values')
+ylabel('x(m)')
+xlabel('t(s)')
+nexttile
+plot(t, toex)
+title('Toe X Values')
+ylabel('x(m)')
+xlabel('t(s)')
+
+%y-t Graphs
+figure(3);
+tiledlayout(2,2)
+nexttile
+plot(t, hipy)
+title('Hip Y Values')
+ylabel('y(m)')
+xlabel('t(s)')
+nexttile
+plot(t, kneey)
+title('Knee Y Values')
+ylabel('y(m)')
+xlabel('t(s)')
+nexttile
+plot(t, ankley)
+title('Ankle Y Values')
+ylabel('y(m)')
+xlabel('t(s)')
+nexttile
+plot(t, toey)
+title('Toe Y Values')
+ylabel('y(m)')
+xlabel('t(s)')
+
+%x-y Graphs
+figure(4);
+plot(hipx, hipy)
+hold on
+plot(kneex, kneey)
+hold on
+plot(anklex, ankley)
+hold on
+plot(toex, toey)
+title('Tracking Results')
+xlabel('x(m)')
+ylabel('y(m)')
+
+%trajectory graphs (fixed x)
+figure(5);
+tiledlayout(2,2)
+hipxfixed = [0];
+hipyfixed = [hipy(1)];
+kneexfixed = [0];
+anklexfixed = [0];
+toexfixed = [0];
+j = 1;
+while(j < 209)
+   hipxfixed(end+1) = hipx(j+1) - hipx(1);
+   kneexfixed(end+1) = kneex(j+1) - hipx(j);
+   anklexfixed(end+1) = anklex(j+1) - hipx(j);
+   toexfixed(end+1) = toex(j+1) - hipx(j);
+   hipyfixed(end+1) = hipy(1);
+   j = j+1;
+end
+nexttile
+plot(hipyfixed,hipxfixed,'o')
+hold on
+axis([0 1.5 0 1.3])
+title('Hip Trajectory')
+xlabel('x(m)')
+ylabel('y(m)')
+nexttile
+plot(kneexfixed, kneey, 'o')
+hold on
+title('Knee Trajectory')
+xlabel('x(m)')
+ylabel('y(m)')
+nexttile
+plot(anklexfixed, ankley, 'o')
+hold on
+title('Ankle Trajectory')
+xlabel('x(m)')
+ylabel('y(m)')
+nexttile
+plot(toexfixed, toey, 'o')
+hold on
+title('Toe Trajectory')
+xlabel('x(m)')
+ylabel('y(m)')
+
