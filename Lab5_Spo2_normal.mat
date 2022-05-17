@@ -1,0 +1,77 @@
+%LED1NF = table2array(HBnormal2LED1F);
+%LED2NF = table2array(HBnormal2LED2F);
+% LED1HF = table2array(HBheld2LED1F);
+% LED2HF = table2array(HBheld2LED2F);
+
+%APPLY FILTER TO LED2NF TO SMOOTH CURVE
+
+t=1:1:305;
+t2=t/128;
+a=-16.666666;b=8.333333;c=100;
+%% peak detection of PPG
+fs=128;
+%rcf=lowpass(rc,20,fs); % low-pass filtering
+rcfc= LED2NF(275:579);
+
+%rcf(396:1462); %choose one segment of 
+%the filtered data
+d_r=rms(rcfc); % DC signal of red
+ 
+%ircf=lowpass(irc,20,fs);
+ircfc= LED1NF(275:579);
+%ircf(396:1462);
+d_ir=rms(ircfc); % DC signal of infrared
+ 
+
+%% peak detection of red
+m=1;
+
+n=length(rcfc);
+for i=2:n-1
+    if rcfc(i)> rcfc(i-1) && rcfc(i)>= rcfc(i+1) && rcfc(i)> d_r  
+       val(m)= rcfc(i);
+       pos1(m)=i;
+       a_r(m)=rcfc(pos1(m)-81);
+       m=m+1;
+     end
+end
+ 
+ppg_peaks=m-1;
+ppg_pos=pos1;
+ppg_val=val;
+%% peak detection of infrared
+m2=1;
+n2=length(ircfc);
+for i=2:n2-1
+    if ircfc(i)> ircfc(i-1) && ircfc(i)>= ircfc(i+1) && ircfc(i)> d_ir+1000
+       vali(m2)= ircfc(i);
+       pos2(m2)=i;
+       a_ir(m2)=ircfc(pos1(m2)-81);
+       m2=m2+1;
+     end
+end
+j = 1;
+for i=1:m-2
+    e(j)= ppg_pos(i+1)-ppg_pos(i);% gives 
+%RR interval
+    j=j+1;
+    
+end 
+% calculation of SpO2
+for i=1:m-1;
+R(i)=((val(i)-a_r(i))/d_r)/((vali(i)- a_ir(i))/d_ir);
+SpO2(i) = a*R(i)*R(i)+b*R(i)+c;
+end
+ 
+hr=(60./mean(e))*128; % 60/ mean of RR 
+%interval
+hrv= (60./e)*128;
+%Normal 76.8
+%Held 81.0
+yyaxis left
+plot(t2,rcfc);hold on;plot(t2,ircfc);
+hold on;
+yyaxis right
+plot(pos2/128,SpO2);
+title('Normal Breathing');
+%axis([0 10 80 110]) %range of x and y axis
