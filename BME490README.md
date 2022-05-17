@@ -21,3 +21,10 @@ Lab5_Spo2.mat:
 Using a sensor to collect IR and red light to find the user's heart rate and Spo2. Collected data using MAX software; 
 then calculated and presented data to user. Data imported from Excel file created by MAX software.
 
+Lab5_Spo2_Normal.mat:
+Same function as Lab5_Spo2.mat with the user utilizing a normal breathing pattern.
+
+Lab5_Spo2_Held.mat:
+Same function as Lab5_Spo2.mat with the user holding their breath continously for about a minute.
+
+Excel: Data sets can be provided if needed.
