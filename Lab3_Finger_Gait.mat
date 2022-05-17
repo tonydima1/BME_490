@@ -1,0 +1,271 @@
+%IMPORTED DATA FROM EXCEL
+%QUARTER BRIDGE DATA
+t = table2array(TrackerData(:,1));
+PIPx = table2array(TrackerData(:,2));
+PIPy = table2array(TrackerData(:,3));
+MPx = table2array(TrackerData(:,5));
+MPy = table2array(TrackerData(:,6));
+PPx = table2array(TrackerData(:,8));
+PPy = table2array(TrackerData(:,9));
+%Top sensor
+SampleTop = table2array(QBridgeVoltData(:,2));
+VoltTop = downsample(SampleTop,2);
+%Bottom sensor
+SampleBot = table2array(QBridgeVoltData(:,10));
+VoltBot = downsample(SampleBot,2);
+%Recorded Arrays
+FullVoltageTop = table2array(QBridgeVoltData(:,2));
+FullVoltageBot = table2array(QBridgeVoltData(:,10));
+FullTime = table2array(QBridgeVoltData(:,7));
+
+%HALF BRIDGE DATA
+t2 = table2array(HTrackerFull(:,1));
+HPIPx = table2array(HTrackerFull(:,2));
+HPIPy = table2array(HTrackerFull(:,3));
+HMPx = table2array(HTrackerFull(:,5));
+HMPy = table2array(HTrackerFull(:,6));
+HPPx = table2array(HTrackerFull(:,8));
+HPPy = table2array(HTrackerFull(:,9));
+%Voltage
+SampleHVolt = table2array(HBridgeVoltData(:,4));
+HVolt = resample(SampleHVolt,365,581);
+%Recorded Arrays
+HFullVoltage = table2array(HBridgeVoltData(:,4));
+HFullTime = table2array(HBridgeVoltData(:,1));
+
+%QUARTER BRIDGE%
+%Position Arrays
+i = 1;
+a = pdist([PIPx(i,1),PIPy(i,1);MPx(i,1),MPy(i,1)]);
+b = pdist([PIPx(i,1),PIPy(i,1);PPx(i,1),PPy(i,1)]);
+c = pdist([PPx(i,1),PPy(i,1);MPx(i,1),MPy(i,1)]);
+%Building the Array
+while(i <= 228)
+i = i+1;
+a(end+1) = pdist([PIPx(i,1),PIPy(i,1);MPx(i,1),MPy(i,1)]);
+b(end+1) = pdist([PIPx(i,1),PIPy(i,1);PPx(i,1),PPy(i,1)]);
+c(end+1) = pdist([PPx(i,1),PPy(i,1);MPx(i,1),MPy(i,1)]);
+end
+a = a';
+b = b';
+c = c';
+
+%Angle array
+
+i = 1;
+Angle = (180/pi)*(acos((a(i,1)^2 + b(i,1)^2 - c(i,1)^2)/(2*a(i,1)*b(i,1))));
+%Building the Array
+while(i <= 228)
+i = i+1;
+Angle(end+1) = (180/pi)*(acos((a(i,1)^2 + b(i,1)^2 - c(i,1)^2)/(2*a(i,1)*b(i,1))));
+end
+Angle = Angle';
+
+%Graphing T vs PIP angle
+figure(1);
+i = 0;
+while(i <= 228)
+    i = i+1;
+    plot(t(i,1),Angle(i,1),'r.')
+    hold on
+end
+title('Quarter Bridge: PIP Angle vs Time');
+xlabel('Time(s)');
+ylabel('Angle(°)');
+
+
+figure(2);
+%Plot Angle vs Voltage Top Sensor
+i = 0;
+while(i <= 198)
+    i = i+1;
+    plot(VoltTop(i,1),Angle(i,1),'r.')
+    hold on
+end
+title('Quarter Bridge: PIP Angle vs Recorded Voltage (Top Sensor)');
+xlabel('Voltage(V)');
+ylabel('Angle(°)');
+p = polyfit(VoltTop(1:i,1),Angle(1:i,1),2)
+f = polyval(p,VoltTop(1:i,1));
+plot(VoltTop(1:i,1),f);
+
+
+figure(3);
+%Plot Angle vs Voltage Bottom Sensor
+i = 0;
+while(i <= 198)
+    i = i+1;
+    plot(VoltBot(i,1),Angle(i,1),'b.')
+    hold on
+end
+title('Quarter Bridge: PIP Angle vs Recorded Voltage (Bottom Sensor)');
+xlabel('Voltage(V)');
+ylabel('Angle(°)');
+p2 = polyfit(VoltBot(1:i,1),Angle(1:i,1),2)
+f2 = polyval(p2,VoltBot(1:i,1));
+plot(VoltBot(1:i,1),f2);
+
+
+%distance-t PIP
+figure(4);
+tiledlayout(2,1)
+nexttile
+plot(t, PIPx)
+title('Quarter Bridge: PIP X Distance vs Time');
+xlabel('Time(s)');
+ylabel('Distance(M)');
+nexttile
+plot(t, PIPy)
+title('Quarter Bridge: PIP Y Distance vs Time');
+xlabel('Time(s)');
+ylabel('Distance(M)');
+
+%distance-t PP
+figure(5);
+tiledlayout(2,1)
+nexttile
+plot(t, PPx)
+title('Quarter Bridge: PP X Distances vs Time');
+xlabel('Time(s)');
+ylabel('Distance(M)');
+nexttile
+plot(t, PPy)
+title('Quarter Bridge: PP Y Distances vs Time');
+xlabel('Time(s)');
+ylabel('Distance(M)');
+
+%distance-t MP
+figure(6);
+tiledlayout(2,1)
+nexttile
+plot(t, MPx)
+title('Quarter Bridge: MP X Distances vs Time');
+xlabel('Time(s)');
+ylabel('Distance(M)');
+nexttile
+plot(t, MPy)
+title('Quarter Bridge: MP Y Distances vs Time');
+xlabel('Time(s)');
+ylabel('Distance(M)');
+
+%Recorded Time vs Voltage
+figure(7);
+tiledlayout(2,1)
+nexttile
+plot(FullTime, FullVoltageTop)
+title('Quarter Bridge: Recorded Time vs Recorded Voltage Top Sensor');
+xlabel('Time(s)');
+ylabel('Voltage(V)');
+nexttile
+plot(FullTime, FullVoltageBot)
+title('Quarter Bridge: Recorded Time vs Recorded Voltage Bottom Sensor');
+xlabel('Time(s)');
+ylabel('Voltage(V)');
+
+%HALF BRIDGE%
+%Position Arrays
+i = 1;
+a2 = pdist([HPIPx(i,1),HPIPy(i,1);HMPx(i,1),HMPy(i,1)]);
+b2 = pdist([HPIPx(i,1),HPIPy(i,1);HPPx(i,1),HPPy(i,1)]);
+c2 = pdist([HPPx(i,1),HPPy(i,1);HMPx(i,1),HMPy(i,1)]);
+%Building the Array
+while(i <= 364)
+i = i+1;
+a2(end+1) = pdist([HPIPx(i,1),HPIPy(i,1);HMPx(i,1),HMPy(i,1)]);
+b2(end+1) = pdist([HPIPx(i,1),HPIPy(i,1);HPPx(i,1),HPPy(i,1)]);
+c2(end+1) = pdist([HPPx(i,1),HPPy(i,1);HMPx(i,1),HMPy(i,1)]);
+end
+a2 = a2';
+b2 = b2';
+c2 = c2';
+
+%Angle array
+
+i = 1;
+Angle2 = (180/pi)*(acos((a2(i,1)^2 + b2(i,1)^2 - c2(i,1)^2)/(2*a2(i,1)*b2(i,1))));
+%Building the Array
+while(i <= 364)
+i = i+1;
+Angle2(end+1) = (180/pi)*(acos((a2(i,1)^2 + b2(i,1)^2 - c2(i,1)^2)/(2*a2(i,1)*b2(i,1))));
+end
+Angle2 = Angle2';
+
+%Graphing T vs PIP angle
+figure(8);
+i = 0;
+while(i <= 364)
+    i = i+1;
+    plot(t2(i,1),Angle2(i,1),'r.')
+    hold on
+end
+title('Half Bridge: PIP Angle vs Time');
+xlabel('Time(s)');
+ylabel('Angle(°)');
+
+
+figure(9);
+%Plot Angle vs Voltage
+i = 0;
+while(i <= 364)
+    i = i+1;
+    plot(HVolt(i,1),Angle2(i,1),'r.')
+    hold on
+end
+title('Half Bridge: PIP Angle vs Recorded Voltage');
+xlabel('Voltage(V)');
+ylabel('Angle(°)');
+p3 = polyfit(HVolt(1:i,1),Angle2(1:i,1),2)
+f3 = polyval(p3,HVolt(1:i,1));
+plot(HVolt(1:i,1),f3);
+
+
+%distance-t PIP
+figure(10);
+tiledlayout(2,1)
+nexttile
+plot(t2, HPIPx)
+title('Half Bridge: PIP X Distance vs Time');
+xlabel('Time(s)');
+ylabel('Distance(M)');
+nexttile
+plot(t2, HPIPy)
+title('Half Bridge: PIP Y Distance vs Time');
+xlabel('Time(s)');
+ylabel('Distance(M)');
+
+%distance-t PP
+figure(11);
+tiledlayout(2,1)
+nexttile
+plot(t2, HPPx)
+title('Half Bridge: PP X Distances vs Time');
+xlabel('Time(s)');
+ylabel('Distance(M)');
+nexttile
+plot(t2, HPPy)
+title('Half Bridge: PP Y Distances vs Time');
+xlabel('Time(s)');
+ylabel('Distance(M)');
+
+%distance-t MP
+figure(12);
+tiledlayout(2,1)
+nexttile
+plot(t2, HMPx)
+title('Half Bridge: MP X Distances vs Time');
+xlabel('Time(s)');
+ylabel('Distance(M)');
+nexttile
+plot(t2, HMPy)
+title('Half Bridge: MP Y Distances vs Time');
+xlabel('Time(s)');
+ylabel('Distance(M)');
+
+%Recorded Time vs Voltage
+figure(13);
+plot(HFullTime, HFullVoltage)
+title('Half Bridge: Recorded Time vs Recorded Voltage');
+xlabel('Time(s)');
+ylabel('Voltage(V)');
+
+
