@@ -1,0 +1,134 @@
+%sampling rate
+fe = 1000;
+%data length
+N = 19904;
+dt = 1/fe;
+t = 0:dt:(N-1)*dt;
+%Code was changed varible
+
+V = table2array(ardred1);
+tog = table2array(redgait3t);
+V1 = table2array(ardred6reg);
+V2 = table2array(ardred6a);
+V3 = table2array(ardred6sen);
+figure(1)
+plot(V1);
+hold on
+plot(V2, 'red');
+title('Arduino Live Test');
+xlabel('Time(s)');
+ylabel('Amplitude(V)');
+hold on
+figure(2)
+plot(V3, 'green');
+figure(1);
+plot(V)
+data array V
+PH2 = (fft(V));
+p2 = (PH2/N);
+p1 = p2(1:N/2+1);
+p1(2:end-1) = 2*p1(2:end-1);
+
+%Graph filter 0.01 and 0.3 then for band 0.115 and 0.125 FIND IMPORTANT
+%VALUES DIVIDE BY 500 for filtering. 
+figure(2);
+f = fe*(0:(N/2))/N;
+plot(f,abs(p1))
+title('Frequency Domain');
+xlabel('f(Hz)');
+ylabel('|p1(f)|');
+axis([0 150 0 0.010])
+hold on
+
+figure(2);
+plot(tog,V);
+title('Original Data');
+xlabel('t');
+ylabel('V');
+axis([0 14 1.48 1.52])
+hold on
+
+%bandstop 0.116 0.122 bandpass 0.02 0.3 bicep
+figure(3);
+plot(Vfiltered);
+title('Filtered Data');
+xlabel('t');
+ylabel('V');
+axis([12000 33000 -0.1 0.1])
+hold on
+
+V1 = Vfiltered32(2900:20400);
+
+for i=1:35456
+   if(i > 12000 && i <=33000)
+       V1(end+1) = Vfiltered(1:i);
+   end
+end
+%bandstop 0.118 0.122 bandpass 0.02 0.118 bicep
+figure(4);
+plot(Vfiltered12);
+title('Filtered Data Second Set');
+xlabel('t');
+ylabel('V');
+axis([2900 17000 -0.1 0.1])
+hold on
+
+%bandstop 0.118 0.122 bandpass 0.02 0.15 bicep
+figure(5);
+plot(Vfiltered32);
+title('Filtered Data Third Set');
+xlabel('t');
+ylabel('V');
+axis([2900 20400 -0.1 0.1])
+hold on
+figure(2);
+plot(V1)
+hold on
+for i= 1:26256
+    V1(i,:) = V1(i,:) - 325;
+    V2(i,:) = V2(i,:) - 325;
+end
+
+for i= 1:26256
+    if(V1(i,:)>=0)
+        b(i,:)= V1(i,:);
+    else
+        b(i,:)= -(V1(i,:));
+    end
+end
+figure(3);
+plot(b)
+
+T2 = 1:29622;
+d = 100;
+loopn = round(length(b)/d);
+clusteringdata = zeros(2,loopn);
+for i = 1:loopn-1
+    ma = rms(b((i-1)*d+1:(i-1)*d+d,1));
+    clusteringdata(1,i) = ma;
+    clusteringdata(2,i) = T2(d/2+d*(i-1));
+end
+
+ ma = rms(b((i-1)*d+1:length(b),1));
+ clusteringdata(1,loopn) = ma;
+ clusteringdata(2,loopn) = T2(d/2+d*(i-1));
+ 
+ figure(4);
+ plot(b)
+ hold on;
+ plot(clusteringdata(2,:), clusteringdata(1,:));
+ title('Envelope');
+ xlabel('Time(s)');
+ ylabel('Amplitude(V)');
+ 
+ for i=1:29622
+     if(V1(i,:)>=0)
+         a(i,:)= V1(i,:);
+     else
+         a(i,:)= 0;
+     end
+ end
+ figure(5);
+ plot(a)
+
+sound(5000*a,3000)
